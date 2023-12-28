@@ -4,26 +4,27 @@ from config import *
 
 class Client:
     def __init__(self, squeue):
-        self.host = IP_ADDR
+        self.host = IP_ADDR                                                         # config dictates addr,port
         self.port = PORT_NUMBER
-        self.connected = False
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.listen_thread = threading.Thread(target=self.listen, daemon=True)
-        self.SERVER_QUEUE = squeue
+        self.connected = False                                                      # keep track if client is connected to server
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)             # client socket to server
+        self.listen_thread = threading.Thread(target=self.listen, daemon=True)      # listen thread for messages from server
+        self.SERVER_QUEUE = squeue                                                  # put messages from server on queue for the client to read
 
     def start_client(self):
-        self.connect()
-        self.send("Hello, Server!")
-
-    def connect(self):
         try:
+            # connect to the server
             self.socket.connect((self.host, self.port))
             self.connected = True
+            # start the listening thread
             self.listen_thread.start()
         except Exception as e:
             print(f"Client socket error -> {e}")
 
+        self.send("Hello, Server!")
+
     def listen(self):
+        # listen for messages from server and put them on the server queue
         while self.connected:
             try:
                 # Check for incoming data
@@ -41,6 +42,7 @@ class Client:
         print('Client is not connected.')
 
     def send(self, data):
+        # Send messages to server
         if self.connected:
             ok = self.socket.send(data.encode())
             if ok == len(data):

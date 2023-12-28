@@ -5,19 +5,19 @@ from config import *
 
 class SocketServer:
     def __init__(self):
-        self.host = IP_ADDR
+        self.host = IP_ADDR                                                 # config dictates addr,port
         self.port = PORT_NUMBER
-        self.socket = None
-        self.client_threads = []
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)     # socket to connect to clients
+        self.client_threads = []                                            # list of client threads
 
     def start(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((self.host, self.port))
         self.socket.listen(5)
         print(f'Server listening on ({self.host}, {self.port})')
         self.run_server()
 
     def run_server(self):
+        # check for incoming client connections
         try:
             while True:
                 client_socket, addr = self.socket.accept()
@@ -31,6 +31,7 @@ class SocketServer:
             self.socket.close()
 
     def handle_client(self, client_socket):
+        # handle client messages in a separate thread
         while True:
             try:
                 data = client_socket.recv(1024).decode()
@@ -58,8 +59,6 @@ class SocketServer:
         self.socket.close()
         print("Server closed.")
 
-# Example usage
 if __name__ == "__main__":
     server = SocketServer()
     server.start()
-    # server.close()

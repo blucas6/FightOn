@@ -6,22 +6,27 @@ import queue
 
 class Game:
     def __init__(self):
-        self.SERVER_QUEUE = queue.Queue()
-        self.CLIENT = Client(self.SERVER_QUEUE)
-        self.CLIENT.start_client()
-        self.TILEWIDTH = 64
-        self.WIDTH = 10*self.TILEWIDTH
+        self.SERVER_QUEUE = queue.Queue()           # Client receives messages and puts them on the queue
+        self.CLIENT = Client(self.SERVER_QUEUE)     # Client object, handles messaging the server
+        self.CLIENT.start_client()                  # Start the client
+        self.TILEWIDTH = 64                         # Tilewidth for tiles (sq)
+        self.WIDTH = 10*self.TILEWIDTH              # Calculate height and width of screen
         self.HEIGHT = 8*self.TILEWIDTH
-        self.BACKGROUND = (230, 230, 230)
-        self.gamerunning = True
-        pygame.init()
-        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
-        self.clock = pygame.time.Clock()
-        self.PLAYER1 = Player('sprites/music_note_man.png', 1*self.TILEWIDTH, 1*self.TILEWIDTH)
-        self.TILES = pygame.sprite.Group()
-        self.MAP = []
-        self.EVENTER = Event(self)
+        self.BACKGROUND = (230, 230, 230)           # Background color
+        self.gamerunning = True                     # Game running checker
+        pygame.init()                               # initialize pygame
+        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))    # Screen object
+        self.clock = pygame.time.Clock()                                    # Pygame clock (framerate)
+        self.PLAYER1 = Player('sprites/music_note_man.png', 1*self.TILEWIDTH, 1*self.TILEWIDTH) 
+        self.TILES = pygame.sprite.Group()          # Put all game tiles in the sprite group
+        self.MAP = []                               # Map array contains all screen tiles
+        self.EVENTER = Event(self)                  # Eventer object for all event processing
 
+        self.setupMatch()
+
+    def setupMatch(self):
+        # fill screen with match tiles and objects
+        print('Game: setup')
         for col in range(int(self.HEIGHT/self.TILEWIDTH)):
             rows = []
             for row in range(int(self.WIDTH/self.TILEWIDTH)):
@@ -29,7 +34,6 @@ class Game:
             self.MAP.append(rows)
         for r in range(int(self.WIDTH/self.TILEWIDTH)):
             self.MAP[-2][r] = 1
-        print(self.MAP)
         for c in range(int(self.HEIGHT/self.TILEWIDTH)):
             for r in range(int(self.WIDTH/self.TILEWIDTH)):
                 if self.MAP[c][r]:

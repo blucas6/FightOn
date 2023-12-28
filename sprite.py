@@ -19,10 +19,14 @@ class Sprite(pygame.sprite.Sprite):
         self.MOVEMENT = [0, 0]
 
     def update(self):
+        self.collisions()
         self.rect.move_ip([self.MOVEMENT[0] * self.SPEEDX,  self.VelocityY])
         self.MOVEMENT = [0, 0]
         #render gravity every frame
         self.gravity()
+
+    def collisions(self):
+        pass
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
@@ -43,7 +47,8 @@ class Sprite(pygame.sprite.Sprite):
 
 
 class Player(Sprite):
-    def __init__(self, image, startx, starty):
+    def __init__(self, game, image, startx, starty):
+        self.Game = game    # reference to game object
         super().__init__(image, startx, starty)
 
 
@@ -55,10 +60,11 @@ class Player(Sprite):
         if keys[pygame.K_UP] and self.onGround and not self.isJumping:
             self.addSpeed(0, -self.SPEEDY)
             self.isJumping = True
-            
-    def CheckGroundCollision(self,groundTiles):
-        if pygame.sprite.spritecollide(self,groundTiles,False):
-            for ground in groundTiles:
+
+    def collisions(self):
+        #player vs ground
+        if pygame.sprite.spritecollide(self,self.Game.TILES,False):
+            for ground in self.Game.TILES:
                 if self.rect.colliderect(ground.rect):
                     if (abs(self.rect.bottom - ground.rect.top) > 1):
                         self.rect.bottom = ground.rect.top

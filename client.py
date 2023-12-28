@@ -21,8 +21,6 @@ class Client:
         except Exception as e:
             print(f"Client socket error -> {e}")
 
-        self.send("Hello, Server!")
-
     def listen(self):
         # listen for messages from server and put them on the server queue
         while self.connected:

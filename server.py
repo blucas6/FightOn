@@ -3,16 +3,23 @@ import threading
 import queue
 from config import *
 
-class SocketServer:
+class playerinfo:
+    def __init__(self, socket, thread, pnum, image=None):
+        self.socket = socket
+        self.thread = thread
+        self.number = pnum
+        self.image = image
+
+class Server:
     def __init__(self):
         self.host = IP_ADDR                                                 # config dictates addr,port
         self.port = PORT_NUMBER
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)     # socket to connect to clients
-        self.client_threads = []                                            # list of client threads
+        self.Players = []
 
     def start(self):
         self.socket.bind((self.host, self.port))
-        self.socket.listen(5)
+        self.socket.listen(2)
         print(f'Server listening on ({self.host}, {self.port})')
         self.run_server()
 
@@ -22,34 +29,50 @@ class SocketServer:
             while True:
                 client_socket, addr = self.socket.accept()
                 print("Server received connection from", addr)
-                client_thread = threading.Thread(target=self.handle_client, args=(client_socket,))
+                playernum = len(self.Players)
+                client_thread = threading.Thread(target=self.handle_client, args=(client_socket,playernum))
+                self.Players.append(playerinfo(client_socket, client_thread, playernum))
                 client_thread.start()
-                self.client_threads.append(client_thread)
         except socket.error as e:
             print(f"Server error: {e}")
         finally:
             self.socket.close()
 
-    def handle_client(self, client_socket):
+    def handle_client(self, client_socket, player_num):
         # handle client messages in a separate thread
         while True:
             try:
                 data = client_socket.recv(1024).decode()
+                # no data
                 if not data:
                     print('Server received no data, quitting...')
                     break
+                # quit request
                 if data == MSGTYPE.QUIT.value:
                     print(f'Server sending [{MSGTYPE.QUIT.value}]')
                     client_socket.send(MSGTYPE.QUIT.value.encode())
                     print('Server received quit request, quitting...')
                     break
+                # hello from client
+                if data[0] == "#":
+                    if data[1] == "H":
+                        print(f'Server: Player{player_num} init with image [{data[2:]}]')
+                        self.Players[player_num] = data[2:]
+                        if len(self.Players) == 2:
+                            self.StartMatch()
                 print(f"Server received from client: [{data}]")
-                client_socket.send(data.encode())
             except socket.error as e:
                 print(f"Server error handling client: {e}")
                 break
         client_socket.close()
         print("Server closed client connection.")
+        self.Players.pop(player_num)
+
+    def StartMatch(self):
+        p1 = self.Players[0]
+        p2 = self.Players[1]
+        p1.socket.send(p2.image.encode())
+        p2.socket.send(p1.image.encode())
 
     def close(self):
         # Close all client connections
@@ -60,5 +83,5 @@ class SocketServer:
         print("Server closed.")
 
 if __name__ == "__main__":
-    server = SocketServer()
+    server = Server()
     server.start()

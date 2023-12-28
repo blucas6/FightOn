@@ -7,7 +7,8 @@ class Event:
         self.Game = game
 
     def deal_with_input(self, keys_pressed):
-        self.Game.PLAYERS[self.Game.PLAYER_ID].ControlMovement(keys_pressed)
+        if self.Game.gState == GameState.RUNNING:
+            self.Game.PLAYERS[self.Game.PLAYER_ID].ControlMovement(keys_pressed)
         if keys_pressed[pygame.K_q] and keys_pressed != self.prev_event:
             self.SendEvent(MSGTYPE.QUIT.value)
         if keys_pressed[pygame.K_d] and keys_pressed != self.prev_event:

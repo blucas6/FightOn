@@ -5,8 +5,8 @@ FPS = 60
 TILEWIDTH = 64                         # Tilewidth for tiles (sq)
 WIDTH = 10*TILEWIDTH              # Calculate height and width of screen
 HEIGHT = 8*TILEWIDTH
-START_SPOT1 = [1*TILEWIDTH, 1*TILEWIDTH]
-START_SPOT2 = [WIDTH-(1*TILEWIDTH), 1*TILEWIDTH]
+START_SPOT1 = [10, 10]
+START_SPOT2 = [10, 10]
 
 PORT_NUMBER = 7770
 IP_ADDR = '10.0.1.6'

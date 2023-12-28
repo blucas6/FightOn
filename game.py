@@ -78,11 +78,11 @@ class Game:
         self.setupMatch()
         while self.gState == GameState.RUNNING:
             try:
+                self.screen.fill(self.BACKGROUND)
                 self.events()
                 for id, pobj in self.PLAYERS.items():
                     pobj.update()
                     pobj.draw(self.screen)
-                self.screen.fill(self.BACKGROUND)
                 self.TILES.draw(self.screen)
                 pygame.display.flip()
                 self.clock.tick(FPS)

@@ -57,7 +57,7 @@ class Server:
                 if data[0] == "#":
                     if data[1] == "H":
                         print(f'Server: Player{player_num} init with image [{data[2:]}]')
-                        self.Players[player_num] = data[2:]
+                        self.Players[player_num].image = data[2:]
                         if len(self.Players) == 2:
                             self.StartMatch()
                 print(f"Server received from client: [{data}]")
@@ -71,8 +71,10 @@ class Server:
     def StartMatch(self):
         p1 = self.Players[0]
         p2 = self.Players[1]
-        p1.socket.send(p2.image.encode())
-        p2.socket.send(p1.image.encode())
+        p1.socket.send((MSGTYPE.NEWPLAYER.value+'1'+p2.image).encode())
+        p2.socket.send((MSGTYPE.NEWPLAYER.value+'2'+p1.image).encode())
+        p1.socket.send(MSGTYPE.STARTGAME.value.encode())
+        p2.socket.send(MSGTYPE.STARTGAME.value.encode())
 
     def close(self):
         # Close all client connections

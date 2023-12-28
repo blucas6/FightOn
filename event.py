@@ -18,7 +18,9 @@ class Event:
         try:
             if servermsg[0] == "#":
                 if servermsg[1] == "N":
-                    self.Game.AddNewPlayer(servermsg[2:])
+                    self.Game.AddNewPlayer(servermsg[2], servermsg[3:])
+            if servermsg == MSGTYPE.STARTGAME.value:
+                self.Game.gState = GameState.RUNNING
         except Exception as e:
             print(f'Game Parse Error from Server [{servermsg}] -> {e}')
 

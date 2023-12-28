@@ -11,7 +11,7 @@ class Game:
         pygame.init()
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.clock = pygame.time.Clock()
-        self.PLAYER1 = Player('sprites/music_note_man.png', 1*self.TILEWIDTH, 1*self.TILEWIDTH)
+        self.PLAYER1 = Player('sprites/fighter.png', 1*self.TILEWIDTH, 1*self.TILEWIDTH)
         self.TILES = pygame.sprite.Group()
         self.MAP = []
         for col in range(int(self.HEIGHT/self.TILEWIDTH)):
@@ -25,25 +25,22 @@ class Game:
         for c in range(int(self.HEIGHT/self.TILEWIDTH)):
             for r in range(int(self.WIDTH/self.TILEWIDTH)):
                 if self.MAP[c][r]:
-                    self.TILES.add(Sprite('sprites/brick.png', r*self.TILEWIDTH, c*self.TILEWIDTH))
+                    self.TILES.add(Sprite('sprites/brickbopbrick.png', r*self.TILEWIDTH, c*self.TILEWIDTH))
 
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.gamerunning = False
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
-            self.PLAYER1.addSpeed(-1, 0)
-        if keys[pygame.K_RIGHT] and not keys[pygame.K_LEFT]:
-            self.PLAYER1.addSpeed(1, 0)
-        if keys[pygame.K_UP]:
-            self.PLAYER1.addSpeed(0, 1)
-        if keys[pygame.K_DOWN]:
-            self.PLAYER1.addSpeed(0, -1)
+        self.PLAYER1.ControlMovement(keys)
+    def collisions(self):
+        #player vs ground
+        self.PLAYER1.CheckGroundCollision(self.TILES)   
 
     def main(self):
         while self.gamerunning:
             self.events()
+            self.collisions()
             self.PLAYER1.update()
 
             self.screen.fill(self.BACKGROUND)

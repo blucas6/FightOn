@@ -10,27 +10,66 @@ class Sprite(pygame.sprite.Sprite):
         self.rect.y = starty
 
         self.SPEEDX = 3
+        self.SPEEDY = 10
+        self.VelocityY = 0
+        self.startGrav = .5
+        self.gravityAmt = .5
+        self.isJumping = False
+        self.onGround = False
         self.MOVEMENT = [0, 0]
 
     def update(self):
-        self.rect.move_ip([self.MOVEMENT[0]*self.SPEEDX, 0])
+        self.rect.move_ip([self.MOVEMENT[0] * self.SPEEDX,  self.VelocityY])
         self.MOVEMENT = [0, 0]
+        #render gravity every frame
+        self.gravity()
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
 
     def addSpeed(self, x, y):
+        #jumping
+        #self.MOVEMENT[1] = 1
+        self.VelocityY += y
+        #left and right movement
         if x == 1:
             self.MOVEMENT[0] = 1
-        if x == -1:
+        elif x == -1:
             self.MOVEMENT[0] = -1
-        if y == 1:
-            self.MOVEMENT[1] = 1
-        if y == -1:
-            self.MOVEMENT[1] = -1
+        
+    def gravity(self):
+        self.addSpeed(0,self.gravityAmt)
+
 
 
 class Player(Sprite):
     def __init__(self, image, startx, starty):
         super().__init__(image, startx, starty)
+
+
+    def ControlMovement(self, keys):
+        if keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
+            self.addSpeed(-1, 0)
+        if keys[pygame.K_RIGHT] and not keys[pygame.K_LEFT]:
+            self.addSpeed(1, 0)
+        if keys[pygame.K_UP] and self.onGround and not self.isJumping:
+            self.addSpeed(0, -self.SPEEDY)
+            self.isJumping = True
+            
+    def CheckGroundCollision(self,groundTiles):
+        if pygame.sprite.spritecollide(self,groundTiles,False):
+            for ground in groundTiles:
+                if self.rect.colliderect(ground.rect):
+                    if (abs(self.rect.bottom - ground.rect.top) > 1):
+                        self.rect.bottom = ground.rect.top
+            self.onGround = True
+            self.gravityAmt = 0
+            if (not self.isJumping):
+                self.VelocityY = 0
+           
+        else:
+            self.gravityAmt = self.startGrav
+            self.onGround = False
+            if (self.VelocityY > 0):
+                self.isJumping = False
 

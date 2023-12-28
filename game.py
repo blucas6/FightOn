@@ -27,6 +27,14 @@ class Game:
     def setupMatch(self):
         # fill screen with match tiles and objects
         print('Game: setup')
+        self.BACKGROUND = (230, 230, 230)
+        self.gamerunning = True
+        pygame.init()
+        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.clock = pygame.time.Clock()
+        self.PLAYER1 = Player('sprites/fighter.png', 1*self.TILEWIDTH, 1*self.TILEWIDTH)
+        self.TILES = pygame.sprite.Group()
+        self.MAP = []
         for col in range(int(self.HEIGHT/self.TILEWIDTH)):
             rows = []
             for row in range(int(self.WIDTH/self.TILEWIDTH)):
@@ -37,7 +45,11 @@ class Game:
         for c in range(int(self.HEIGHT/self.TILEWIDTH)):
             for r in range(int(self.WIDTH/self.TILEWIDTH)):
                 if self.MAP[c][r]:
-                    self.TILES.add(Sprite('sprites/brick.png', r*self.TILEWIDTH, c*self.TILEWIDTH))
+                    self.TILES.add(Sprite('sprites/brickbopbrick.png', r*self.TILEWIDTH, c*self.TILEWIDTH))
+
+    def collisions(self):
+        #player vs ground
+        self.PLAYER1.CheckGroundCollision(self.TILES)   
 
     def events(self):
         # process input
@@ -51,11 +63,13 @@ class Game:
         if not self.SERVER_QUEUE.empty():
             msg = self.SERVER_QUEUE.get()
             print(f'CLIENT RECEIVED: [{msg}]')
+        self.PLAYER1.ControlMovement(keys)
 
     def main(self):
         while self.gamerunning:
             try:
                 self.events()
+                self.collisions()
                 self.PLAYER1.update()
                 self.screen.fill(self.BACKGROUND)
                 self.PLAYER1.draw(self.screen)

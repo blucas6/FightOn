@@ -10,12 +10,14 @@ START_SPOT2 = [10, 10]
 
 PORT_NUMBER = 7770
 IP_ADDR = '10.0.1.6'
+PLAYERSNEEDEDTOSTART = 2
 
 class MSGTYPE(enum.Enum):
-    HELLO = '#H'            #H[image]
+    HELLO = '#H'            #H[Player_ID][image]
     QUIT = 'Closing Server Request'
-    NEWPLAYER = '#N'        #N[image]
+    NEWPLAYER = '#N'        #N[Player_ID][image]
     STARTGAME = 'Start Game Request'
+    PLAYERMOVE = '#M'       #M[Player_ID][+/-][dx][+/-][dy]
 
 class GameState(enum.Enum):
     RUNNING = 1     # running match

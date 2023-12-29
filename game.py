@@ -65,6 +65,14 @@ class Game:
         self.PLAYERS[self.PLAYER_ID] = Player(self, MYPLAYER, myspot[0], myspot[1]) 
         self.PLAYERS[enemyid] = Player(self, img, enemyspot[0], enemyspot[1])
 
+    def MovePlayer(self, id, movex, movey):
+        try:
+            print(f'Game: Moving player {id} ({movex}, {movey})')
+            self.PLAYERS[id].addSpeed(movex, movey)
+        except Exception as e:
+            print(f'Game failed to move player -> {e}')
+
+
     def main(self):
         # waiting for players
         self.EVENTER.SendEvent(MSGTYPE.HELLO.value)

@@ -1,4 +1,6 @@
 import pygame
+from config import *
+
 class Sprite(pygame.sprite.Sprite):
     def __init__(self, image, startx, starty):
         super().__init__()
@@ -54,11 +56,14 @@ class Player(Sprite):
 
     def ControlMovement(self, keys):
         if keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
-            self.addSpeed(-1, 0)
+            # self.addSpeed(-1, 0)
+            self.Game.EVENTER.SendEvent(f'{MSGTYPE.PLAYERMOVE.value}{self.Game.PLAYER_ID}-1+0')
         if keys[pygame.K_RIGHT] and not keys[pygame.K_LEFT]:
-            self.addSpeed(1, 0)
+            # self.addSpeed(1, 0)
+            self.Game.EVENTER.SendEvent(f'{MSGTYPE.PLAYERMOVE.value}{self.Game.PLAYER_ID}+1+0')
         if keys[pygame.K_UP] and self.onGround and not self.isJumping:
-            self.addSpeed(0, -self.SPEEDY)
+            # self.addSpeed(0, -self.SPEEDY)
+            self.Game.EVENTER.SendEvent(f'{MSGTYPE.PLAYERMOVE.value}{self.Game.PLAYER_ID}+0-{self.SPEEDY}')
             self.isJumping = True
 
     def collisions(self):

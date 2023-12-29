@@ -1,6 +1,28 @@
 import pygame
 from config import *
 
+def event_parser(data):
+    try:
+        if data[0] == "#":
+            if data[1] == "N":
+                return [data[2], data[3:]]
+            elif data[1] == "H":
+                return [data[2:]]
+            elif data[1] == "M":
+                id = int(data[2])
+                movex = int(data[4])
+                movey = int(data[6])
+                if data[3] == '-':
+                    movex *= -1
+                if data[5] == '-':
+                    movey *= -1
+                return [id, movex, movey]
+        else:
+            return []
+    except Exception as e:
+        print(f'PARSING ERROR -> {e}')
+        return []
+    
 class Event:
     def __init__(self, game):
         self.prev_event = None
@@ -17,11 +39,14 @@ class Event:
 
     def process_event(self, servermsg):
         try:
-            if servermsg[0] == "#":
-                if servermsg[1] == "N":
-                    self.Game.AddNewPlayer(servermsg[2], servermsg[3:])
-            if servermsg == MSGTYPE.STARTGAME.value:
+            args = event_parser(servermsg)
+            print(f'Client parsed args -> {args}')
+            if servermsg[1] == "N":
+                self.Game.AddNewPlayer(args[0], args[1])
+            elif servermsg == MSGTYPE.STARTGAME.value:
                 self.Game.gState = GameState.RUNNING
+            elif servermsg[1] == "M":
+                self.Game.MovePlayer(args[0], args[1], args[2])
         except Exception as e:
             print(f'Game Parse Error from Server [{servermsg}] -> {e}')
 

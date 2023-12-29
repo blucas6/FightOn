@@ -2,6 +2,7 @@ import socket
 import threading
 import queue
 from config import *
+from event import event_parser
 
 class playerinfo:
     def __init__(self, socket, thread, pnum, image=None):
@@ -43,6 +44,7 @@ class Server:
         while True:
             try:
                 data = client_socket.recv(1024).decode()
+                print(f"Server received from client: [{data}]")
                 # no data
                 if not data:
                     print('Server received no data, quitting...')
@@ -53,26 +55,39 @@ class Server:
                     client_socket.send(MSGTYPE.QUIT.value.encode())
                     print('Server received quit request, quitting...')
                     break
-                # hello from client
+                # process event
                 if data[0] == "#":
-                    if data[1] == "H":
-                        print(f'Server: Player{player_num} init with image [{data[2:]}]')
-                        self.Players[player_num].image = data[2:]
-                        if len(self.Players) == 2:
-                            self.StartMatch()
-                print(f"Server received from client: [{data}]")
+                    self.process_event(data, player_num)
             except socket.error as e:
                 print(f"Server error handling client: {e}")
                 break
         client_socket.close()
-        print("Server closed client connection.")
+        print(f"Server closed client connection -> Player {player_num}.")
         self.Players.pop(player_num)
+
+    def process_event(self, data, player_num):
+        try:
+            args = event_parser(data)
+            print(f'Server: parsing args -> {args}')
+            if data[1] == "H":
+                print('Server: Players ->',self.Players)
+                self.Players[player_num].image = args[0]
+                print(f'Server: Player{player_num} init with image [{args[0]}]')
+                if len(self.Players) == PLAYERSNEEDEDTOSTART:
+                    print('Server starting game...')
+                    self.StartMatch()
+            elif data[1] == "M":
+                print(f'Server: Player{args[0]} moves ({args[1]},{args[2]})')
+                for p in self.Players:
+                    p.socket.send(data.encode())
+        except Exception as e:
+            print(f'SERVER PARSING ERROR [{data}] -> {e}')
 
     def StartMatch(self):
         p1 = self.Players[0]
         p2 = self.Players[1]
-        p1.socket.send((MSGTYPE.NEWPLAYER.value+'1'+p2.image).encode())
-        p2.socket.send((MSGTYPE.NEWPLAYER.value+'2'+p1.image).encode())
+        p1.socket.send((MSGTYPE.NEWPLAYER.value+'0'+p2.image).encode())
+        p2.socket.send((MSGTYPE.NEWPLAYER.value+'1'+p1.image).encode())
         p1.socket.send(MSGTYPE.STARTGAME.value.encode())
         p2.socket.send(MSGTYPE.STARTGAME.value.encode())
 
